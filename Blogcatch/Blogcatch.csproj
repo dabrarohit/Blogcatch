@@ -226,6 +226,7 @@
     <Compile Include="Areas\Admin\Models\Comment.cs" />
     <Compile Include="Areas\Admin\Models\dto\CategoryDto.cs" />
     <Compile Include="Areas\Admin\Models\dto\PageDto.cs" />
+    <Compile Include="Areas\Admin\Models\AjaxUtilities\JsonResponseFactory.cs" />
     <Compile Include="Areas\Admin\Models\Page.cs" />
     <Compile Include="Areas\Admin\Models\ImageManager.cs" />
     <Compile Include="Areas\Admin\Models\Post.cs" />

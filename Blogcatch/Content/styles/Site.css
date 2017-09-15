@@ -10,7 +10,10 @@
 .dl-horizontal dt {
     white-space: normal;
 }
-
+/************/
+/* BACK */
+/************/
+/* Category ajax message */
 table.sorting tr:not(.home) {
     cursor:pointer;
 }
@@ -23,6 +26,10 @@ table.sorting tr:not(.home) {
 
 .ajax-text {
     display:none;
+}
+
+.ajax-rename-category {
+    position:absolute;
 }
 
 /*
@@ -65,6 +72,9 @@ table.sorting tr:not(.home) {
 .connectWidgets > li {
     cursor: pointer;
 }
+
+
+
 /************/
 /* FRONT */
 /************/

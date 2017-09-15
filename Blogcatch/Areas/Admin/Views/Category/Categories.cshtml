@@ -30,7 +30,8 @@
         {
             <tr id="@item.Id" class="@item.Slug">
                 <td class="category-name">
-                    @Html.DisplayFor(modelItem => item.Name)
+                    <div class="ajax-rename-category"></div>
+                    @Html.EditorFor(modelItem => item.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                 </td>
                 <td>
                     <a href="#" class="js-delete" data-category-id="@item.Id">Delete</a>
@@ -47,7 +48,7 @@
 
             /*
             * Create new category
-           */
+            */
 
             var categoryTextInput = $("#categoryTextInput");
             var categoryNewButton = $("a#categoryNewButton");
@@ -93,13 +94,12 @@
                     contentType: 'application/json',
                     success: function (dataResponse) {
                         var response = dataResponse.toString().trim();
-                        if (response == "titleTaken") { //if the title is taken
+                        if (response === "titleTaken") { //if the title is taken
                             UpdateCategoryMessage("That title is already taken!", "danger");
                         } else { //title is not taken
                             if (!($("table#categories").length)) {
                                 location.reload(); //refresh the current page
-                            }
-                            else {
+                            } else {
                                 UpdateCategoryMessage("Category successfully added!", "success");
                                 categoryTextInput.val("");
                                 var appendTo = $("table#categories tbody tr:last").clone();
@@ -138,20 +138,81 @@
             /*
             * Delete Category
             */
-            $("table#categories tbody").on("click","a.js-delete",function () {
-                var id = $(this).attr("data-category-id");
-                if (confirm("Are you sure you want to delete this category?")) {
-                    $.ajax({
-                        method: "DELETE",
-                        url: "/admin/api/Category/DeleteCategory/"+id
-                    }).done(function () {
-                        $("table#categories tbody tr#" + id).fadeOut("slow", function () {
-                            $("table#categories tbody tr#" + id).remove();
-                            table.sortable("refresh");
+            $("table#categories tbody").on("click",
+                "a.js-delete",
+                function () {
+                    var id = $(this).attr("data-category-id");
+                    if (confirm("Are you sure you want to delete this category?")) {
+                        $.ajax({
+                            method: "DELETE",
+                            url: "/admin/api/Category/DeleteCategory/" + id
+                        }).done(function () {
+                            $("table#categories tbody tr#" + id).fadeOut("slow",
+                                function () {
+                                    $("table#categories tbody tr#" + id).remove();
+                                    table.sortable("refresh");
+                                });
                         });
-                    });
+                    }
+                });
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////
+
+            /*
+            * Rename Category
+            */
+            var originalTextBoxValue;
+            $("table#categories input.text-box").dblclick(function () {
+                originalTextBoxValue = $(this).val();
+                $(this).attr("readonly", false);
+            });
+
+            $("table#categories input.text-box").keyup(function(e) {
+                if (e.keyCode === 13) {
+                    $(this).blur();
                 }
             });
+
+            $("table#categories input.text-box").blur(function () {
+                
+                var inputCategory = $(this);
+                var ajaxDiv = inputCategory.parent().parent().find(".ajax-rename-category");
+                var url = "/admin/Category/RenameCategory";
+                var id = inputCategory.parent().parent().attr("id");
+                var newCatName = inputCategory.val().trim();
+
+                if (newCatName.length < 2) {
+                    alert("Category name must be greater than 2 characters");
+                    return false;
+                }
+                $.post(url,
+                    { id: id, newCatName: newCatName },
+                    function(data) {
+                        if (data.Success === true) {
+                            ajaxDiv.html(
+                                    '<span class="alert alert-success">The category has been successfully added</span>')
+                                .show();
+                        } else {
+                            ajaxDiv.html(
+                                '<span class="alert alert-danger">' + data.ErrorMessage + '</span>');
+                        }
+                    }).done(function() {
+
+                    inputCategory.attr("readonly", true);
+                    setTimeout(function () {
+                            ajaxDiv.fadeOut("fast",
+                                function () {
+                                    ajaxDiv.html("");
+                                });
+                        },
+                        2000);
+                });
+            });
+            
+
+        
+
+
 
             ////////////////////////////////////////////////////////////////////////////////////////////////
 
